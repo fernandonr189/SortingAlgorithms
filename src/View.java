@@ -171,7 +171,7 @@ public class View extends JFrame {
 
                 DecimalFormat formatter = new DecimalFormat("#,###");
 
-                elapsedTimeLabel.setText("Tiempo: " + formatter.format(elapsedTime) + " nanosegundos");
+                elapsedTimeLabel.setText("Tiempo: " + formatter.format(elapsedTime / 1000) + " microsegundos");
                 sortedTextPane.setText(sortedArray);
             }
         });
