@@ -5,6 +5,7 @@ import java.awt.event.ActionListener;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.text.DecimalFormat;
+import java.util.concurrent.ForkJoinPool;
 
 enum SortingAlgorithm {
     NONE,
@@ -157,9 +158,14 @@ public class View extends JFrame {
                         elapsedTime = finish - start;
                     }
                     case FORKJOIN -> {
-                        // TODO Implementar algoritmo ForkJoin
-                        sortedArray = "Algoritmo no implementado";
-                        elapsedTime = 0;
+                        ForkJoinPool forkJoinPool = new ForkJoinPool();
+                        ForkJoinMergeSort task = new ForkJoinMergeSort(unsortedArray);
+                        long start = System.nanoTime();
+                        int[] arr = forkJoinPool.invoke(task);
+                        long finish = System.nanoTime();
+                        forkJoinPool.close();
+                        sortedArray = ArrayUtils.getArrayString(arr);
+                        elapsedTime = finish - start;
                     }
                     case EXECUTE -> //noinspection DuplicateBranchesInSwitch
                     {
