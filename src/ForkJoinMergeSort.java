@@ -3,72 +3,56 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.RecursiveTask;
 
-public class ForkJoinMergeSort extends RecursiveTask<int[]>{
+public class ForkJoinMergeSort extends RecursiveTask<ArrayList<Integer>>{
 
+    private final ArrayList<Integer> list;
 
-    private int[] arr;
-    public ForkJoinMergeSort(int[] _arr) {
-        this.arr = _arr;
+    public ForkJoinMergeSort(ArrayList<Integer> _list) {
+        this.list = _list;
     }
-
     @Override
-    protected int[] compute() {
-        if(this.arr.length == 1) {
-            return this.arr;
+    protected ArrayList<Integer> compute() {
+        if(list.size() == 1) {
+            return list;
         }
 
-        int[] arrayOne = Arrays.copyOfRange(this.arr, 0, this.arr.length / 2);
-        int[] arrayTwo = Arrays.copyOfRange(this.arr, this.arr.length / 2, this.arr.length);
+        ArrayList<Integer> listOne = new ArrayList<>(list.subList(0, list.size() / 2));
+        ArrayList<Integer> listTwo = new ArrayList<>(list.subList(list.size() / 2, list.size()));
 
-        ForkJoinMergeSort arrayOneTask = new ForkJoinMergeSort(arrayOne);
-        ForkJoinMergeSort arrayTwoTask = new ForkJoinMergeSort(arrayTwo);
+        ForkJoinMergeSort taskOne = new ForkJoinMergeSort(listOne);
+        ForkJoinMergeSort taskTwo = new ForkJoinMergeSort(listTwo);
 
-        arrayTwoTask.fork();
-        arrayOne = arrayOneTask.compute();
-        arrayTwo = arrayTwoTask.join();
+        taskTwo.fork();
+        listOne = taskOne.compute();
+        listTwo = taskTwo.join();
 
-        return merge(arrayOne, arrayTwo);
+        return sort(listOne, listTwo);
     }
 
-    private static int[] merge(int [] arrayA, int[] arrayB) {
-        List<Integer> arrayC = new ArrayList<Integer>();
 
-        while(arrayA.length > 0 && arrayB.length > 0) {
-            if(arrayA[0] > arrayB[0]) {
-                arrayC.add(arrayB[0]);
-                arrayB = Arrays.copyOfRange(arrayB, 1, arrayB.length);
+    private static ArrayList<Integer> sort(List<Integer> arrayA, List<Integer> arrayB) {
+        ArrayList<Integer> arrayC = new ArrayList<Integer>();
+
+        while(!arrayA.isEmpty() && !arrayB.isEmpty()) {
+            if(arrayA.get(0) > arrayB.get(0)) {
+                arrayC.add(arrayB.get(0));
+                arrayB.remove(0);
             }
             else {
-                arrayC.add(arrayA[0]);
-                arrayA = Arrays.copyOfRange(arrayA, 1, arrayA.length);
+                arrayC.add(arrayA.get(0));
+                arrayA.remove(0);
             }
         }
 
-        List<Integer> listA = arrayToList(arrayA);
-        List<Integer> listB = arrayToList(arrayB);
-
-        while(!listA.isEmpty()) {
-            arrayC.add(listA.get(0));
-            listA.remove(0);
+        while(!arrayA.isEmpty()) {
+            arrayC.add(arrayA.get(0));
+            arrayA.remove(0);
         }
-        while(!listB.isEmpty()) {
-            arrayC.add(listB.get(0));
-            listB.remove(0);
+        while(!arrayB.isEmpty()) {
+            arrayC.add(arrayB.get(0));
+            arrayB.remove(0);
         }
 
-        int[] arr = new int[arrayC.size()];
-        for(int i = 0; i < arrayC.size(); i++) {
-            arr[i] = arrayC.get(i);
-        }
-        return arr;
+        return arrayC;
     }
-
-    public static List<Integer> arrayToList(int[] arr) {
-        List<Integer> newList = new ArrayList<Integer>();
-        for(int i: arr) {
-            newList.add(i);
-        }
-        return newList;
-    }
-    
 }

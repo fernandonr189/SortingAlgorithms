@@ -5,6 +5,7 @@ import java.awt.event.ActionListener;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.text.DecimalFormat;
+import java.util.ArrayList;
 import java.util.concurrent.ForkJoinPool;
 
 enum SortingAlgorithm {
@@ -151,24 +152,25 @@ public class View extends JFrame {
                         return;
                     }
                     case MERGESORT -> {
+                        ArrayList<Integer> newList = ArrayUtils.arrayToList(unsortedArray);
                         long start = System.nanoTime();
-                        int[] arr = MergeSort.doMergeSort(unsortedArray);
+                        ArrayList<Integer> arr = MergeSort.doMergeSort(newList);
                         long finish = System.nanoTime();
-                        sortedArray = ArrayUtils.getArrayString(arr);
+                        sortedArray = ArrayUtils.getArrayString(ArrayUtils.listToArray(arr));
                         elapsedTime = finish - start;
                     }
                     case FORKJOIN -> {
                         ForkJoinPool forkJoinPool = new ForkJoinPool();
-                        ForkJoinMergeSort task = new ForkJoinMergeSort(unsortedArray);
+                        ForkJoinMergeSort task = new ForkJoinMergeSort(ArrayUtils.arrayToList(unsortedArray));
                         long start = System.nanoTime();
-                        int[] arr = forkJoinPool.invoke(task);
+                        ArrayList<Integer> arr = forkJoinPool.invoke(task);
                         long finish = System.nanoTime();
-                        forkJoinPool.close();
-                        sortedArray = ArrayUtils.getArrayString(arr);
+                        sortedArray = ArrayUtils.getArrayString(ArrayUtils.listToArray(arr));
                         elapsedTime = finish - start;
+                        forkJoinPool.close();
+
                     }
-                    case EXECUTE -> //noinspection DuplicateBranchesInSwitch
-                    {
+                    case EXECUTE -> {
                         // TODO Implementar algoritmo Execute
                         sortedArray = "Algoritmo no implementado";
                         elapsedTime = 0;
@@ -176,7 +178,6 @@ public class View extends JFrame {
                 }
 
                 DecimalFormat formatter = new DecimalFormat("#,###");
-
                 elapsedTimeLabel.setText("Tiempo: " + formatter.format(elapsedTime / 1000) + " microsegundos");
                 sortedTextPane.setText(sortedArray);
             }
