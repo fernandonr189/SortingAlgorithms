@@ -152,20 +152,19 @@ public class View extends JFrame {
                         return;
                     }
                     case MERGESORT -> {
-                        ArrayList<Integer> newList = ArrayUtils.arrayToList(unsortedArray);
                         long start = System.nanoTime();
-                        ArrayList<Integer> arr = MergeSort.doMergeSort(newList);
+                        int[] arr = MergeSort.doMergeSort(unsortedArray);
                         long finish = System.nanoTime();
-                        sortedArray = ArrayUtils.getArrayString(ArrayUtils.listToArray(arr));
+                        sortedArray = ArrayUtils.getArrayString(arr);
                         elapsedTime = finish - start;
                     }
                     case FORKJOIN -> {
                         ForkJoinPool forkJoinPool = new ForkJoinPool();
-                        ForkJoinMergeSort task = new ForkJoinMergeSort(ArrayUtils.arrayToList(unsortedArray));
+                        ForkJoinMergeSort task = new ForkJoinMergeSort(unsortedArray);
                         long start = System.nanoTime();
-                        ArrayList<Integer> arr = forkJoinPool.invoke(task);
+                        int[] arr = forkJoinPool.invoke(task);
                         long finish = System.nanoTime();
-                        sortedArray = ArrayUtils.getArrayString(ArrayUtils.listToArray(arr));
+                        sortedArray = ArrayUtils.getArrayString(arr);
                         elapsedTime = finish - start;
                         forkJoinPool.close();
 
@@ -178,7 +177,7 @@ public class View extends JFrame {
                 }
 
                 DecimalFormat formatter = new DecimalFormat("#,###");
-                elapsedTimeLabel.setText("Tiempo: " + formatter.format(elapsedTime / 1000) + " microsegundos");
+                elapsedTimeLabel.setText("Tiempo: " + formatter.format(elapsedTime / 1000000) + " milisegundos");
                 sortedTextPane.setText(sortedArray);
             }
         });

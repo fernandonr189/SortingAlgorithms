@@ -3,54 +3,60 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.RecursiveTask;
 
-public class ForkJoinMergeSort extends RecursiveTask<ArrayList<Integer>>{
+public class ForkJoinMergeSort extends RecursiveTask<int[]>{
 
-    private final ArrayList<Integer> list;
+    private final int[] list;
 
-    public ForkJoinMergeSort(ArrayList<Integer> _list) {
+    public ForkJoinMergeSort(int[] _list) {
         this.list = _list;
     }
     @Override
-    protected ArrayList<Integer> compute() {
-        if(list.size() == 1) {
+    protected int[] compute() {
+        if(list.length == 1) {
             return list;
         }
 
-        ArrayList<Integer> listOne = new ArrayList<>(list.subList(0, list.size() / 2));
-        ArrayList<Integer> listTwo = new ArrayList<>(list.subList(list.size() / 2, list.size()));
+        int[] arrayOne = Arrays.copyOfRange(list, 0, list.length / 2);
+        int[] arrayTwo = Arrays.copyOfRange(list, list.length / 2, list.length);
 
-        ForkJoinMergeSort taskOne = new ForkJoinMergeSort(listOne);
-        ForkJoinMergeSort taskTwo = new ForkJoinMergeSort(listTwo);
+        ForkJoinMergeSort taskOne = new ForkJoinMergeSort(arrayOne);
+        ForkJoinMergeSort taskTwo = new ForkJoinMergeSort(arrayTwo);
 
         taskTwo.fork();
-        listOne = taskOne.compute();
-        listTwo = taskTwo.join();
+        arrayOne = taskOne.compute();
+        arrayTwo = taskTwo.join();
 
-        return sort(listOne, listTwo);
+        return sort(arrayOne, arrayTwo);
     }
 
 
-    private static ArrayList<Integer> sort(List<Integer> arrayA, List<Integer> arrayB) {
-        ArrayList<Integer> arrayC = new ArrayList<Integer>();
+    private static int[] sort(int[] arrayA, int[] arrayB) {
+        int[] arrayC = new int[arrayA.length + arrayB.length];
 
-        while(!arrayA.isEmpty() && !arrayB.isEmpty()) {
-            if(arrayA.get(0) > arrayB.get(0)) {
-                arrayC.add(arrayB.get(0));
-                arrayB.remove(0);
+        int bCounter = 0;
+        int aCounter = 0;
+        int cCounter = 0;
+        while(arrayA.length > aCounter && arrayB.length > bCounter) {
+            if(arrayA[aCounter] > arrayB[bCounter]) {
+                arrayC[cCounter] = arrayB[bCounter];
+                bCounter++;
             }
             else {
-                arrayC.add(arrayA.get(0));
-                arrayA.remove(0);
+                arrayC[cCounter] = arrayA[aCounter];
+                aCounter++;
             }
+            cCounter++;
         }
 
-        while(!arrayA.isEmpty()) {
-            arrayC.add(arrayA.get(0));
-            arrayA.remove(0);
+        while(arrayA.length > aCounter) {
+            arrayC[cCounter] = arrayA[aCounter];
+            aCounter++;
+            cCounter++;
         }
-        while(!arrayB.isEmpty()) {
-            arrayC.add(arrayB.get(0));
-            arrayB.remove(0);
+        while(arrayB.length > bCounter) {
+            arrayC[cCounter] = arrayB[bCounter];
+            bCounter++;
+            cCounter++;
         }
 
         return arrayC;

@@ -5,40 +5,48 @@ import java.util.List;
 public class MergeSort {
 
 
-    public static ArrayList<Integer> doMergeSort(ArrayList<Integer> a) {
-        if(a.size() == 1) {
+    public static int[] doMergeSort(int[] a) {
+        if(a.length == 1) {
             return a;
         }
-        ArrayList<Integer> listOne = new ArrayList<>(a.subList(0, a.size() / 2));
-        ArrayList<Integer> listTwo = new ArrayList<>(a.subList(a.size() / 2, a.size()));
 
-        listOne = doMergeSort(listOne);
-        listTwo = doMergeSort(listTwo);
+        int[] arrayOne = Arrays.copyOfRange(a, 0, a.length / 2);
+        int[] arrayTwo = Arrays.copyOfRange(a, a.length / 2, a.length);
 
-        return sort(listOne, listTwo);
+
+        arrayOne = doMergeSort(arrayOne);
+        arrayTwo = doMergeSort(arrayTwo);
+
+        return sort(arrayOne, arrayTwo);
     }
 
-    private static ArrayList<Integer> sort(ArrayList<Integer> arrayA, ArrayList<Integer> arrayB) {
-        ArrayList<Integer> arrayC = new ArrayList<Integer>();
+    private static int[] sort(int[] arrayA, int[] arrayB) {
+        int[] arrayC = new int[arrayA.length + arrayB.length];
 
-        while(!arrayA.isEmpty() && !arrayB.isEmpty()) {
-            if(arrayA.get(0) > arrayB.get(0)) {
-                arrayC.add(arrayB.get(0));
-                arrayB.remove(0);
+        int bCounter = 0;
+        int aCounter = 0;
+        int cCounter = 0;
+        while(arrayA.length > aCounter && arrayB.length > bCounter) {
+            if(arrayA[aCounter] > arrayB[bCounter]) {
+                arrayC[cCounter] = arrayB[bCounter];
+                bCounter++;
             }
             else {
-                arrayC.add(arrayA.get(0));
-                arrayA.remove(0);
+                arrayC[cCounter] = arrayA[aCounter];
+                aCounter++;
             }
+            cCounter++;
         }
 
-        while(!arrayA.isEmpty()) {
-            arrayC.add(arrayA.get(0));
-            arrayA.remove(0);
+        while(arrayA.length > aCounter) {
+            arrayC[cCounter] = arrayA[aCounter];
+            aCounter++;
+            cCounter++;
         }
-        while(!arrayB.isEmpty()) {
-            arrayC.add(arrayB.get(0));
-            arrayB.remove(0);
+        while(arrayB.length > bCounter) {
+            arrayC[cCounter] = arrayB[bCounter];
+            bCounter++;
+            cCounter++;
         }
 
         return arrayC;
