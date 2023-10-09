@@ -5,7 +5,6 @@ import java.awt.event.ActionListener;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.text.DecimalFormat;
-import java.util.ArrayList;
 import java.util.concurrent.ForkJoinPool;
 
 enum SortingAlgorithm {
@@ -181,7 +180,6 @@ public class View extends JFrame {
                 sortedTextPane.setText(sortedArray);
             }
         });
-        this.setVisible(true);
     }
 
     private void selectSortingAlgorithm(SortingAlgorithm selected) {
