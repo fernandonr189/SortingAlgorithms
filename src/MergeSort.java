@@ -3,24 +3,21 @@ import java.util.Arrays;
 public class MergeSort {
 
 
-    public static int[] doMergeSort(int[] a) {
+    public static void doMergeSort(int[] a) {
         if(a.length == 1) {
-            return a;
+            return;
         }
 
         int[] arrayOne = Arrays.copyOfRange(a, 0, a.length / 2);
         int[] arrayTwo = Arrays.copyOfRange(a, a.length / 2, a.length);
 
+        doMergeSort(arrayOne);
+        doMergeSort(arrayTwo);
 
-        arrayOne = doMergeSort(arrayOne);
-        arrayTwo = doMergeSort(arrayTwo);
-
-        return sort(arrayOne, arrayTwo);
+        sort(arrayOne, arrayTwo, a);
     }
 
-    private static int[] sort(int[] arrayA, int[] arrayB) {
-        int[] arrayC = new int[arrayA.length + arrayB.length];
-
+    private static void sort(int[] arrayA, int[] arrayB, int[] arrayC) {
         int bCounter = 0;
         int aCounter = 0;
         int cCounter = 0;
@@ -46,7 +43,5 @@ public class MergeSort {
             bCounter++;
             cCounter++;
         }
-
-        return arrayC;
     }
 }

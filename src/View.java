@@ -152,10 +152,10 @@ public class View extends JFrame {
                     }
                     case MERGESORT -> {
                         long start = System.nanoTime();
-                        int[] arr = MergeSort.doMergeSort(unsortedArray);
+                        MergeSort.doMergeSort(unsortedArray);
                         long finish = System.nanoTime();
-                        sortedArray = ArrayUtils.getArrayString(arr);
                         elapsedTime = finish - start;
+                        sortedArray = ArrayUtils.getArrayString(unsortedArray);
                     }
                     case FORKJOIN -> {
                         ForkJoinPool forkJoinPool = new ForkJoinPool();
