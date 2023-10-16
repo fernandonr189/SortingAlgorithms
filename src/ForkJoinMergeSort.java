@@ -21,8 +21,9 @@ public class ForkJoinMergeSort extends RecursiveAction{
         ForkJoinMergeSort taskOne = new ForkJoinMergeSort(arrayOne);
         ForkJoinMergeSort taskTwo = new ForkJoinMergeSort(arrayTwo);
 
-        invokeAll(taskOne);
-        invokeAll(taskTwo);
+        taskTwo.fork();
+        taskOne.compute();
+        taskTwo.join();
 
         sort(arrayOne, arrayTwo, list);
     }

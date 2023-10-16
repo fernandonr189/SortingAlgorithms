@@ -39,6 +39,8 @@ public class View extends JFrame {
 
     private long elapsedTime = 0;
 
+    private final ForkJoinPool forkJoinPool = ForkJoinPool.commonPool();
+
     private final DecimalFormat formatter = new DecimalFormat("#,###");
 
     private SortingAlgorithm sortingAlgorithm = SortingAlgorithm.NONE;
@@ -178,7 +180,6 @@ public class View extends JFrame {
                         elapsedTimeMergeSort.setText("Merge: " + formatter.format(elapsedTime / 1000) + " us");
                     }
                     case FORKJOIN -> {
-                        ForkJoinPool forkJoinPool = new ForkJoinPool();
                         ForkJoinMergeSort task = new ForkJoinMergeSort(unsortedArray);
                         long start = System.nanoTime();
                         forkJoinPool.invoke(task);
