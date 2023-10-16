@@ -31,9 +31,15 @@ public class View extends JFrame {
     private JScrollPane scrollPane1;
     private JScrollPane scrollPane2;
 
-    private JLabel elapsedTimeLabel;
+    private JLabel elapsedTimeMergeSort;
+
+    private JLabel elapsedTimeForkJoin;
+
+    private JLabel elapsedTimeExecute;
 
     private long elapsedTime = 0;
+
+    private final DecimalFormat formatter = new DecimalFormat("#,###");
 
     private SortingAlgorithm sortingAlgorithm = SortingAlgorithm.NONE;
     public View(){
@@ -44,7 +50,7 @@ public class View extends JFrame {
         this.setLayout(null);
         this.setTitle("Algoritmos de ordenamiento");
         this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        this.setSize(600, 410);
+        this.setSize(600, 480);
 
         mergeButton = new JButton("MergeSort");
         mergeButton.setBounds(25, 60, 100, 25);
@@ -83,12 +89,21 @@ public class View extends JFrame {
         scrollPane1 = new JScrollPane(unsortedTextPane);
         scrollPane1.setBounds(150, 25, 400, 150);
 
-        elapsedTimeLabel = new JLabel("");
-        elapsedTimeLabel.setBounds(150, 175, 400, 25);
-        elapsedTimeLabel.setForeground(Color.RED);
+        elapsedTimeMergeSort = new JLabel("");
+        elapsedTimeMergeSort.setBounds(25, 390, 400, 25);
+        elapsedTimeMergeSort.setForeground(Color.RED);
 
         scrollPane2 = new JScrollPane(sortedTextPane);
         scrollPane2.setBounds(150, 200, 400, 150);
+
+        elapsedTimeForkJoin = new JLabel("");
+        elapsedTimeForkJoin.setBounds(150, 390, 400, 25);
+        elapsedTimeForkJoin.setForeground(Color.RED);
+
+        elapsedTimeExecute = new JLabel("");
+        elapsedTimeExecute.setBounds(275, 390, 400, 25);
+        elapsedTimeExecute.setForeground(Color.RED);
+
 
         panel.add(mergeButton);
         panel.add(arraySizeTextField);
@@ -99,7 +114,9 @@ public class View extends JFrame {
         panel.add(startButton);
         panel.add(clearButton);
         panel.add(selectedAlgorithmLabel);
-        panel.add(elapsedTimeLabel);
+        panel.add(elapsedTimeMergeSort);
+        panel.add(elapsedTimeForkJoin);
+        panel.add(elapsedTimeExecute);
 
         mergeButton.addActionListener(new ActionListener() {
             @Override
@@ -129,7 +146,9 @@ public class View extends JFrame {
                 arraySizeTextField.setText("");
                 sortedTextPane.setText("");
                 unsortedTextPane.setText("");
-                elapsedTimeLabel.setText("");
+                elapsedTimeMergeSort.setText("");
+                elapsedTimeForkJoin.setText("");
+                elapsedTimeExecute.setText("");
             }
         });
 
@@ -137,7 +156,7 @@ public class View extends JFrame {
             @Override
             public void actionPerformed(ActionEvent e) {
                 if(arraySizeTextField.getText().isEmpty()) {
-                    elapsedTimeLabel.setText("Introduzca un tamaño valido!");
+                    sortedTextPane.setText("Introduzca un tamaño valido!");
                     return;
                 }
                 int arrayLength = Integer.parseInt(arraySizeTextField.getText());
@@ -146,7 +165,7 @@ public class View extends JFrame {
                 String sortedArray = "";
                 switch (sortingAlgorithm) {
                     case NONE -> {
-                        elapsedTimeLabel.setText("Seleccione un algoritmo!");
+                        sortedTextPane.setText("Seleccione un algoritmo!");
                         elapsedTime = 0;
                         return;
                     }
@@ -156,6 +175,7 @@ public class View extends JFrame {
                         long finish = System.nanoTime();
                         elapsedTime = finish - start;
                         sortedArray = ArrayUtils.getArrayString(unsortedArray);
+                        elapsedTimeMergeSort.setText("Merge: " + formatter.format(elapsedTime / 1000) + " us");
                     }
                     case FORKJOIN -> {
                         ForkJoinPool forkJoinPool = new ForkJoinPool();
@@ -166,7 +186,7 @@ public class View extends JFrame {
                         sortedArray = ArrayUtils.getArrayString(arr);
                         elapsedTime = finish - start;
                         forkJoinPool.close();
-
+                        elapsedTimeForkJoin.setText("Fork: " + formatter.format(elapsedTime / 1000) + " us");
                     }
                     case EXECUTE -> {
                         // TODO Implementar algoritmo Execute
@@ -174,9 +194,6 @@ public class View extends JFrame {
                         elapsedTime = 0;
                     }
                 }
-
-                DecimalFormat formatter = new DecimalFormat("#,###");
-                elapsedTimeLabel.setText("Tiempo: " + formatter.format(elapsedTime / 1000000) + " milisegundos");
                 sortedTextPane.setText(sortedArray);
             }
         });
