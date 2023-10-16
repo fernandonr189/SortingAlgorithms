@@ -181,9 +181,9 @@ public class View extends JFrame {
                         ForkJoinPool forkJoinPool = new ForkJoinPool();
                         ForkJoinMergeSort task = new ForkJoinMergeSort(unsortedArray);
                         long start = System.nanoTime();
-                        int[] arr = forkJoinPool.invoke(task);
+                        forkJoinPool.invoke(task);
                         long finish = System.nanoTime();
-                        sortedArray = ArrayUtils.getArrayString(arr);
+                        sortedArray = ArrayUtils.getArrayString(unsortedArray);
                         elapsedTime = finish - start;
                         forkJoinPool.close();
                         elapsedTimeForkJoin.setText("Fork: " + formatter.format(elapsedTime / 1000) + " us");

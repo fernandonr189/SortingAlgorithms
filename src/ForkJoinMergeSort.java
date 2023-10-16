@@ -1,17 +1,18 @@
 import java.util.Arrays;
-import java.util.concurrent.RecursiveTask;
+import java.util.concurrent.RecursiveAction;
 
-public class ForkJoinMergeSort extends RecursiveTask<int[]>{
+public class ForkJoinMergeSort extends RecursiveAction{
 
     private final int[] list;
 
     public ForkJoinMergeSort(int[] _list) {
         this.list = _list;
     }
+
     @Override
-    protected int[] compute() {
+    protected void compute() {
         if(list.length == 1) {
-            return list;
+            return;
         }
 
         int[] arrayOne = Arrays.copyOfRange(list, 0, list.length / 2);
@@ -21,16 +22,14 @@ public class ForkJoinMergeSort extends RecursiveTask<int[]>{
         ForkJoinMergeSort taskTwo = new ForkJoinMergeSort(arrayTwo);
 
         taskTwo.fork();
-        arrayOne = taskOne.compute();
-        arrayTwo = taskTwo.join();
+        taskOne.compute();
+        taskTwo.join();
 
-        return sort(arrayOne, arrayTwo);
+        sort(arrayOne, arrayTwo, list);
     }
 
 
-    private static int[] sort(int[] arrayA, int[] arrayB) {
-        int[] arrayC = new int[arrayA.length + arrayB.length];
-
+    private static void sort(int[] arrayA, int[] arrayB, int[] arrayC) {
         int bCounter = 0;
         int aCounter = 0;
         int cCounter = 0;
@@ -56,7 +55,5 @@ public class ForkJoinMergeSort extends RecursiveTask<int[]>{
             bCounter++;
             cCounter++;
         }
-
-        return arrayC;
     }
 }
