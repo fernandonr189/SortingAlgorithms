@@ -167,7 +167,7 @@ public class View extends JFrame {
                 }
                 int arrayLength = Integer.parseInt(arraySizeTextField.getText());
                 int[] unsortedArray = ArrayUtils.createRandomArray(arrayLength);
-                unsortedTextPane.setText(ArrayUtils.getArrayString(unsortedArray));
+                //unsortedTextPane.setText(ArrayUtils.getArrayString(unsortedArray));
                 String sortedArray = "";
                 switch (sortingAlgorithm) {
                     case NONE -> {
@@ -210,7 +210,7 @@ public class View extends JFrame {
                         elapsedTimeExecute.setText("Execute: " + formatter.format(elapsedTime / 1000) + " us");
                     }
                 }
-                sortedTextPane.setText(sortedArray);
+                //sortedTextPane.setText(sortedArray);
             }
         });
     }

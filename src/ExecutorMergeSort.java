@@ -21,11 +21,11 @@ public class ExecutorMergeSort implements Callable<int[]> {
         int[] arrayTwo = Arrays.copyOfRange(list, list.length / 2, list.length);
 
         Future<int[]> futureOne = executor.submit(new ExecutorMergeSort(arrayOne, executor));
-        Future<int[]> futureTwo = executor.submit(new ExecutorMergeSort(arrayTwo, executor));
+        ExecutorMergeSort taskTwo = new ExecutorMergeSort(arrayTwo, executor);
+        arrayTwo = taskTwo.call();
 
         try {
             arrayOne = futureOne.get();
-            arrayTwo = futureTwo.get();
         } catch (InterruptedException | ExecutionException e) {
             throw new RuntimeException(e);
         }
