@@ -1,3 +1,4 @@
+
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
@@ -5,7 +6,10 @@ import java.awt.event.ActionListener;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.text.DecimalFormat;
-import java.util.concurrent.ForkJoinPool;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+import java.util.concurrent.*;
 
 enum SortingAlgorithm {
     NONE,
@@ -190,9 +194,20 @@ public class View extends JFrame {
                         elapsedTimeForkJoin.setText("Fork: " + formatter.format(elapsedTime / 1000) + " us");
                     }
                     case EXECUTE -> {
-                        // TODO Implementar algoritmo Execute
-                        sortedArray = "Algoritmo no implementado";
-                        elapsedTime = 0;
+                        ExecutorService executor = Executors.newWorkStealingPool();
+                        ExecutorMergeSort executorMergeSort = new ExecutorMergeSort(unsortedArray, executor);
+                        long start = System.nanoTime();
+                        Future<int[]> future = executor.submit(executorMergeSort);
+                        try {
+                            unsortedArray = future.get();
+                        } catch (InterruptedException | ExecutionException ex) {
+                            throw new RuntimeException(ex);
+                        }
+                        long finish = System.nanoTime();
+                        elapsedTime = finish - start;
+                        executor.shutdown();
+                        sortedArray = ArrayUtils.getArrayString(unsortedArray);
+                        elapsedTimeExecute.setText("Execute: " + formatter.format(elapsedTime / 1000) + " us");
                     }
                 }
                 sortedTextPane.setText(sortedArray);
