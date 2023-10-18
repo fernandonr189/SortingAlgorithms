@@ -1,6 +1,3 @@
-import java.util.ArrayList;
-import java.util.List;
-
 public class ArrayUtils {
     public static String getArrayString(int[] arr) {
         StringBuilder printableArr = new StringBuilder();
@@ -25,19 +22,4 @@ public class ArrayUtils {
         return arr;
     }
 
-    public static ArrayList<Integer> arrayToList(int[] arr) {
-        ArrayList<Integer> newList = new ArrayList<Integer>();
-        for(int i: arr) {
-            newList.add(i);
-        }
-        return newList;
-    }
-
-    public static int[] listToArray(List<Integer> arr) {
-        int[] newArr = new int[arr.size()];
-        for(int i = 0; i < arr.size(); i++) {
-            newArr[i] = arr.get(i);
-        }
-        return newArr;
-    }
 }

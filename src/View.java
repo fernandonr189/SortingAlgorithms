@@ -1,14 +1,8 @@
-
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.text.DecimalFormat;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
 import java.util.concurrent.*;
 
 enum SortingAlgorithm {
@@ -20,26 +14,17 @@ enum SortingAlgorithm {
 
 public class View extends JFrame {
 
-    private Panel panel;
-    private JButton mergeButton;
-    private JButton forkJoinButton;
-    private JButton executeButton;
-    private JTextPane unsortedTextPane;
-    private JTextPane sortedTextPane;
-    private JTextField arraySizeTextField;
-    private JButton startButton;
-    private JButton clearButton;
+    private final JTextPane unsortedTextPane;
+    private final JTextPane sortedTextPane;
+    private final JTextField arraySizeTextField;
 
-    private JLabel selectedAlgorithmLabel;
+    private final JLabel selectedAlgorithmLabel;
 
-    private JScrollPane scrollPane1;
-    private JScrollPane scrollPane2;
+    private final JLabel elapsedTimeMergeSort;
 
-    private JLabel elapsedTimeMergeSort;
+    private final JLabel elapsedTimeForkJoin;
 
-    private JLabel elapsedTimeForkJoin;
-
-    private JLabel elapsedTimeExecute;
+    private final JLabel elapsedTimeExecute;
 
     private long elapsedTime = 0;
 
@@ -49,7 +34,7 @@ public class View extends JFrame {
 
     private SortingAlgorithm sortingAlgorithm = SortingAlgorithm.NONE;
     public View(){
-        panel = new Panel();
+        Panel panel = new Panel();
         panel.setBackground(Color.DARK_GRAY);
         this.setContentPane(panel);
         this.setLocationRelativeTo(null);
@@ -58,13 +43,13 @@ public class View extends JFrame {
         this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         this.setSize(600, 480);
 
-        mergeButton = new JButton("MergeSort");
+        JButton mergeButton = new JButton("MergeSort");
         mergeButton.setBounds(25, 60, 100, 25);
 
-        forkJoinButton = new JButton("ForkJoin");
+        JButton forkJoinButton = new JButton("ForkJoin");
         forkJoinButton.setBounds(25, 95, 100, 25);
 
-        executeButton = new JButton("Execute");
+        JButton executeButton = new JButton("Execute");
         executeButton.setBounds(25, 130, 100, 25);
 
         arraySizeTextField = new JTextField();
@@ -82,24 +67,24 @@ public class View extends JFrame {
         sortedTextPane = new JTextPane();
         sortedTextPane.setEditable(false);
 
-        startButton = new JButton("Comenzar");
+        JButton startButton = new JButton("Comenzar");
         startButton.setBounds(25, 200, 100, 25);
 
-        clearButton = new JButton("Borrar");
+        JButton clearButton = new JButton("Borrar");
         clearButton.setBounds(25, 235, 100, 25);
 
         selectedAlgorithmLabel = new JLabel("<html>Algoritmo<br>selecciónado:<br>Ninguno</html>");
         selectedAlgorithmLabel.setBounds(25, 270, 100, 50);
         selectedAlgorithmLabel.setForeground(Color.WHITE);
 
-        scrollPane1 = new JScrollPane(unsortedTextPane);
+        JScrollPane scrollPane1 = new JScrollPane(unsortedTextPane);
         scrollPane1.setBounds(150, 25, 400, 150);
 
         elapsedTimeMergeSort = new JLabel("");
         elapsedTimeMergeSort.setBounds(25, 390, 400, 25);
         elapsedTimeMergeSort.setForeground(Color.RED);
 
-        scrollPane2 = new JScrollPane(sortedTextPane);
+        JScrollPane scrollPane2 = new JScrollPane(sortedTextPane);
         scrollPane2.setBounds(150, 200, 400, 150);
 
         elapsedTimeForkJoin = new JLabel("");
@@ -124,94 +109,73 @@ public class View extends JFrame {
         panel.add(elapsedTimeForkJoin);
         panel.add(elapsedTimeExecute);
 
-        mergeButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                selectSortingAlgorithm(SortingAlgorithm.MERGESORT);
-            }
+        mergeButton.addActionListener(e -> selectSortingAlgorithm(SortingAlgorithm.MERGESORT));
+
+        forkJoinButton.addActionListener(e -> selectSortingAlgorithm(SortingAlgorithm.FORKJOIN));
+
+        executeButton.addActionListener(e -> selectSortingAlgorithm(SortingAlgorithm.EXECUTE));
+
+        clearButton.addActionListener(e -> {
+            selectSortingAlgorithm(SortingAlgorithm.NONE);
+            arraySizeTextField.setText("");
+            sortedTextPane.setText("");
+            unsortedTextPane.setText("");
+            elapsedTimeMergeSort.setText("");
+            elapsedTimeForkJoin.setText("");
+            elapsedTimeExecute.setText("");
         });
 
-        forkJoinButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                selectSortingAlgorithm(SortingAlgorithm.FORKJOIN);
+        startButton.addActionListener(e -> {
+            if(arraySizeTextField.getText().isEmpty()) {
+                sortedTextPane.setText("Introduzca un tamaño valido!");
+                return;
             }
-        });
-
-        executeButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                selectSortingAlgorithm(SortingAlgorithm.EXECUTE);
-            }
-        });
-
-        clearButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                selectSortingAlgorithm(SortingAlgorithm.NONE);
-                arraySizeTextField.setText("");
-                sortedTextPane.setText("");
-                unsortedTextPane.setText("");
-                elapsedTimeMergeSort.setText("");
-                elapsedTimeForkJoin.setText("");
-                elapsedTimeExecute.setText("");
-            }
-        });
-
-        startButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                if(arraySizeTextField.getText().isEmpty()) {
-                    sortedTextPane.setText("Introduzca un tamaño valido!");
+            int arrayLength = Integer.parseInt(arraySizeTextField.getText());
+            int[] unsortedArray = ArrayUtils.createRandomArray(arrayLength);
+            unsortedTextPane.setText(ArrayUtils.getArrayString(unsortedArray));
+            String sortedArray = "";
+            switch (sortingAlgorithm) {
+                case NONE -> {
+                    sortedTextPane.setText("Seleccione un algoritmo!");
+                    elapsedTime = 0;
                     return;
                 }
-                int arrayLength = Integer.parseInt(arraySizeTextField.getText());
-                int[] unsortedArray = ArrayUtils.createRandomArray(arrayLength);
-                //unsortedTextPane.setText(ArrayUtils.getArrayString(unsortedArray));
-                String sortedArray = "";
-                switch (sortingAlgorithm) {
-                    case NONE -> {
-                        sortedTextPane.setText("Seleccione un algoritmo!");
-                        elapsedTime = 0;
-                        return;
-                    }
-                    case MERGESORT -> {
-                        long start = System.nanoTime();
-                        MergeSort.doMergeSort(unsortedArray);
-                        long finish = System.nanoTime();
-                        elapsedTime = finish - start;
-                        sortedArray = ArrayUtils.getArrayString(unsortedArray);
-                        elapsedTimeMergeSort.setText("Merge: " + formatter.format(elapsedTime / 1000) + " us");
-                    }
-                    case FORKJOIN -> {
-                        ForkJoinMergeSort task = new ForkJoinMergeSort(unsortedArray);
-                        long start = System.nanoTime();
-                        forkJoinPool.invoke(task);
-                        long finish = System.nanoTime();
-                        sortedArray = ArrayUtils.getArrayString(unsortedArray);
-                        elapsedTime = finish - start;
-                        forkJoinPool.close();
-                        elapsedTimeForkJoin.setText("Fork: " + formatter.format(elapsedTime / 1000) + " us");
-                    }
-                    case EXECUTE -> {
-                        ExecutorService executor = Executors.newWorkStealingPool();
-                        ExecutorMergeSort executorMergeSort = new ExecutorMergeSort(unsortedArray, executor);
-                        long start = System.nanoTime();
-                        Future<int[]> future = executor.submit(executorMergeSort);
-                        try {
-                            unsortedArray = future.get();
-                        } catch (InterruptedException | ExecutionException ex) {
-                            throw new RuntimeException(ex);
-                        }
-                        long finish = System.nanoTime();
-                        elapsedTime = finish - start;
-                        executor.shutdown();
-                        sortedArray = ArrayUtils.getArrayString(unsortedArray);
-                        elapsedTimeExecute.setText("Execute: " + formatter.format(elapsedTime / 1000) + " us");
-                    }
+                case MERGESORT -> {
+                    long start = System.nanoTime();
+                    MergeSort.doMergeSort(unsortedArray);
+                    long finish = System.nanoTime();
+                    elapsedTime = finish - start;
+                    sortedArray = ArrayUtils.getArrayString(unsortedArray);
+                    elapsedTimeMergeSort.setText("Merge: " + formatter.format(elapsedTime / 1000) + " us");
                 }
-                //sortedTextPane.setText(sortedArray);
+                case FORKJOIN -> {
+                    ForkJoinMergeSort task = new ForkJoinMergeSort(unsortedArray);
+                    long start = System.nanoTime();
+                    forkJoinPool.invoke(task);
+                    long finish = System.nanoTime();
+                    sortedArray = ArrayUtils.getArrayString(unsortedArray);
+                    elapsedTime = finish - start;
+                    forkJoinPool.close();
+                    elapsedTimeForkJoin.setText("Fork: " + formatter.format(elapsedTime / 1000) + " us");
+                }
+                case EXECUTE -> {
+                    ExecutorService executor = Executors.newWorkStealingPool();
+                    ExecutorMergeSort executorMergeSort = new ExecutorMergeSort(unsortedArray, executor);
+                    long start = System.nanoTime();
+                    Future<int[]> future = executor.submit(executorMergeSort);
+                    try {
+                        unsortedArray = future.get();
+                    } catch (InterruptedException | ExecutionException ex) {
+                        throw new RuntimeException(ex);
+                    }
+                    long finish = System.nanoTime();
+                    elapsedTime = finish - start;
+                    executor.shutdown();
+                    sortedArray = ArrayUtils.getArrayString(unsortedArray);
+                    elapsedTimeExecute.setText("Execute: " + formatter.format(elapsedTime / 1000) + " us");
+                }
             }
+            sortedTextPane.setText(sortedArray);
         });
     }
 

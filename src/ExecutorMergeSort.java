@@ -4,8 +4,8 @@ import java.util.concurrent.*;
 public class ExecutorMergeSort implements Callable<int[]> {
 
 
-    private int[] list;
-    private ExecutorService executor;
+    private final int[] list;
+    private final ExecutorService executor;
     public ExecutorMergeSort(int[] _list, ExecutorService _executor) {
         this.list = _list;
         this.executor = _executor;
