@@ -133,38 +133,50 @@ public class View extends JFrame {
                     return;
                 }
                 case MERGESORT -> {
-                    long start = System.nanoTime();
-                    MergeSort.doMergeSort(unsortedArray);
-                    long finish = System.nanoTime();
-                    elapsedTime = finish - start;
+                    long averageTime = 0;
+                    for(int i = 0; i < 50; i++) {
+                        long start = System.nanoTime();
+                        MergeSort.doMergeSort(unsortedArray);
+                        long finish = System.nanoTime();
+                        elapsedTime = finish - start;
+                        averageTime += elapsedTime;
+                    }
                     sortedArray = ArrayUtils.getArrayString(unsortedArray);
-                    elapsedTimeMergeSort.setText("Merge: " + formatter.format(elapsedTime / 1000) + " us");
+                    elapsedTimeMergeSort.setText("Merge: " + formatter.format(averageTime / 50000) + " us");
                 }
                 case FORKJOIN -> {
-                    ForkJoinMergeSort task = new ForkJoinMergeSort(unsortedArray);
-                    long start = System.nanoTime();
-                    forkJoinPool.invoke(task);
-                    long finish = System.nanoTime();
+                    long averageTime = 0;
+                    for(int i = 0; i < 50; i++) {
+                        ForkJoinMergeSort task = new ForkJoinMergeSort(unsortedArray);
+                        long start = System.nanoTime();
+                        forkJoinPool.invoke(task);
+                        long finish = System.nanoTime();
+                        elapsedTime = finish - start;
+                        forkJoinPool.close();
+                        averageTime += elapsedTime;
+                    }
                     sortedArray = ArrayUtils.getArrayString(unsortedArray);
-                    elapsedTime = finish - start;
-                    forkJoinPool.close();
-                    elapsedTimeForkJoin.setText("Fork: " + formatter.format(elapsedTime / 1000) + " us");
+                    elapsedTimeForkJoin.setText("Fork: " + formatter.format(averageTime / 50000) + " us");
                 }
                 case EXECUTE -> {
-                    ExecutorService executor = Executors.newWorkStealingPool();
-                    ExecutorMergeSort executorMergeSort = new ExecutorMergeSort(unsortedArray, executor);
-                    long start = System.nanoTime();
-                    Future<int[]> future = executor.submit(executorMergeSort);
-                    try {
-                        unsortedArray = future.get();
-                    } catch (InterruptedException | ExecutionException ex) {
-                        throw new RuntimeException(ex);
+                    long averageTime = 0;
+                    for(int i = 0; i < 50; i++) {
+                        ExecutorService executor = Executors.newWorkStealingPool();
+                        ExecutorMergeSort executorMergeSort = new ExecutorMergeSort(unsortedArray, executor);
+                        long start = System.nanoTime();
+                        Future<int[]> future = executor.submit(executorMergeSort);
+                        try {
+                            unsortedArray = future.get();
+                        } catch (InterruptedException | ExecutionException ex) {
+                            throw new RuntimeException(ex);
+                        }
+                        long finish = System.nanoTime();
+                        elapsedTime = finish - start;
+                        averageTime += elapsedTime;
+                        executor.shutdown();
                     }
-                    long finish = System.nanoTime();
-                    elapsedTime = finish - start;
-                    executor.shutdown();
                     sortedArray = ArrayUtils.getArrayString(unsortedArray);
-                    elapsedTimeExecute.setText("Execute: " + formatter.format(elapsedTime / 1000) + " us");
+                    elapsedTimeExecute.setText("Execute: " + formatter.format(averageTime / 50000) + " us");
                 }
             }
             sortedTextPane.setText(sortedArray);
