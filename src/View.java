@@ -17,21 +17,13 @@ public class View extends JFrame {
     private final JTextPane unsortedTextPane;
     private final JTextPane sortedTextPane;
     private final JTextField arraySizeTextField;
-
     private final JLabel selectedAlgorithmLabel;
-
     private final JLabel elapsedTimeMergeSort;
-
     private final JLabel elapsedTimeForkJoin;
-
     private final JLabel elapsedTimeExecute;
-
     private long elapsedTime = 0;
-
     private final ForkJoinPool forkJoinPool = ForkJoinPool.commonPool();
-
     private final DecimalFormat formatter = new DecimalFormat("#,###");
-
     private SortingAlgorithm sortingAlgorithm = SortingAlgorithm.NONE;
     public View(){
         Panel panel = new Panel();
