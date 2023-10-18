@@ -124,7 +124,7 @@ public class View extends JFrame {
             }
             int arrayLength = Integer.parseInt(arraySizeTextField.getText());
             int[] unsortedArray = ArrayUtils.createRandomArray(arrayLength);
-            unsortedTextPane.setText(ArrayUtils.getArrayString(unsortedArray));
+            //unsortedTextPane.setText(ArrayUtils.getArrayString(unsortedArray));
             String sortedArray = "";
             switch (sortingAlgorithm) {
                 case NONE -> {
@@ -133,53 +133,40 @@ public class View extends JFrame {
                     return;
                 }
                 case MERGESORT -> {
-                    long averageTime = 0;
-                    for(int i = 0; i < 50; i++) {
-                        long start = System.nanoTime();
-                        MergeSort.doMergeSort(unsortedArray);
-                        long finish = System.nanoTime();
-                        elapsedTime = finish - start;
-                        averageTime += elapsedTime;
-                    }
+                    long start = System.nanoTime();
+                    MergeSort.doMergeSort(unsortedArray);
+                    long finish = System.nanoTime();
+                    elapsedTime = finish - start;
                     sortedArray = ArrayUtils.getArrayString(unsortedArray);
-                    elapsedTimeMergeSort.setText("Merge: " + formatter.format(averageTime / 50000) + " us");
+                    elapsedTimeMergeSort.setText("Merge: " + formatter.format(elapsedTime / 1000) + " us");
                 }
                 case FORKJOIN -> {
-                    long averageTime = 0;
-                    for(int i = 0; i < 50; i++) {
-                        ForkJoinMergeSort task = new ForkJoinMergeSort(unsortedArray);
-                        long start = System.nanoTime();
-                        forkJoinPool.invoke(task);
-                        long finish = System.nanoTime();
-                        elapsedTime = finish - start;
-                        forkJoinPool.close();
-                        averageTime += elapsedTime;
-                    }
+                    ForkJoinMergeSort task = new ForkJoinMergeSort(unsortedArray);
+                    long start = System.nanoTime();
+                    forkJoinPool.invoke(task);
+                    long finish = System.nanoTime();
+                    elapsedTime = finish - start;
+                    forkJoinPool.close();
                     sortedArray = ArrayUtils.getArrayString(unsortedArray);
-                    elapsedTimeForkJoin.setText("Fork: " + formatter.format(averageTime / 50000) + " us");
+                    elapsedTimeForkJoin.setText("Fork: " + formatter.format(elapsedTime / 1000) + " us");
                 }
                 case EXECUTE -> {
-                    long averageTime = 0;
-                    for(int i = 0; i < 50; i++) {
-                        ExecutorService executor = Executors.newWorkStealingPool();
-                        ExecutorMergeSort executorMergeSort = new ExecutorMergeSort(unsortedArray, executor);
-                        long start = System.nanoTime();
-                        Future<int[]> future = executor.submit(executorMergeSort);
-                        try {
-                            unsortedArray = future.get();
-                        } catch (InterruptedException | ExecutionException ex) {
-                            throw new RuntimeException(ex);
-                        }
-                        long finish = System.nanoTime();
-                        elapsedTime = finish - start;
-                        averageTime += elapsedTime;
-                        executor.shutdown();
+                    ExecutorService executor = Executors.newFixedThreadPool(7);
+                    long start = System.nanoTime();
+                    Future<?> future = executor.submit(() -> ExecutorMergeSort.mergeSort(unsortedArray, executor));
+                    try {
+                        future.get();
+                    } catch (InterruptedException | ExecutionException ex) {
+                        throw new RuntimeException(ex);
                     }
+                    long finish = System.nanoTime();
+                    elapsedTime = finish - start;
+                    executor.shutdown();
                     sortedArray = ArrayUtils.getArrayString(unsortedArray);
-                    elapsedTimeExecute.setText("Execute: " + formatter.format(averageTime / 50000) + " us");
+                    elapsedTimeExecute.setText("Execute: " + formatter.format(elapsedTime / 1000) + " us");
                 }
             }
-            sortedTextPane.setText(sortedArray);
+            //sortedTextPane.setText(sortedArray);
         });
     }
 
