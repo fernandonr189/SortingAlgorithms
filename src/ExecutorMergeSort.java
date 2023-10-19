@@ -1,50 +1,54 @@
+import java.lang.reflect.Array;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import java.util.concurrent.*;
 
 public class ExecutorMergeSort {
 
-    public static void mergeSort(int[] list, ExecutorService executor) {
-        if(list.length == 1) {
-            return;
+    public static int[] mergeSort(int[] list, ExecutorService executor, int chunks) {
+
+        int[][] arrays = new int[chunks][];
+        for(int i = 0; i < chunks; i++) {
+            arrays[i] = Arrays.copyOfRange(list, list.length * i / chunks, list.length * (i + 1) / chunks);
         }
 
-        int[] arrayOne = Arrays.copyOfRange(list, 0, list.length / 4);
-        int[] arrayTwo = Arrays.copyOfRange(list, list.length / 4, list.length / 2);
-        int[] arrayThree = Arrays.copyOfRange(list, list.length / 2, list.length * 3 / 4);
-        int[] arrayFour = Arrays.copyOfRange(list, list.length * 3 / 4, list.length);
-
-        Future<?> futureOne = executor.submit(() -> MergeSort.doMergeSort(arrayOne));
-        Future<?> futureTwo = executor.submit(() -> MergeSort.doMergeSort(arrayTwo));
-        Future<?> futureThree = executor.submit(() -> MergeSort.doMergeSort(arrayThree));
-        Future<?> futureFour = executor.submit(() -> MergeSort.doMergeSort(arrayFour));
-
-  
+        List<Callable<Void>> tasks = new ArrayList<>();
+        for(int i = 0; i < chunks; i++) {
+            tasks.add(new MergeSortCallable(arrays[i]));
+        }
         try {
-            futureOne.get();
-            futureTwo.get();
-            futureThree.get();
-            futureFour.get();
-        } catch (InterruptedException | ExecutionException e) {
-            e.printStackTrace();
+            executor.invokeAll(tasks);
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
         }
 
-    
-        
-        Future<int[]> resultOne = executor.submit(() -> sort(arrayOne, arrayTwo));
-        Future<int[]> resultTwo = executor.submit(() -> sort(arrayThree, arrayFour));
+        List<Future<int[]>> futures = new ArrayList<>();
+        for(int i = 0; i < chunks / 2; i++) {
+            int finalI = i;
+            futures.add(executor.submit(() -> sort(arrays[finalI * 2], arrays[(finalI * 2) + 1])));
+        }
 
-        Future<?> result = executor.submit(() -> {
-            try {
-                sort(resultOne.get(), resultTwo.get(), list);
-            } catch (InterruptedException | ExecutionException e) {
-                e.printStackTrace();
+        while(futures.size() > 1) {
+            List<Future<int[]>> newList = new ArrayList<>();
+            List<Future<int[]>> finalFutures = futures;
+            if(futures.size() == 3) {
+                Future<int[]> last = executor.submit(() -> sort(finalFutures.get(0).get(), finalFutures.get(1).get()));
+                newList.add(executor.submit(() -> sort(last.get(), finalFutures.get(2).get())));
             }
-        });
-        
+            else {
+                for(int i = 0; i < futures.size() / 2; i++) {
+                    int finalI = i;
+                    newList.add(executor.submit(() -> sort(finalFutures.get(finalI * 2).get(), finalFutures.get((finalI * 2) + 1).get())));
+                }
+            }
+            futures = newList;
+        }
+
         try {
-            result.get();
+            return futures.get(0).get();
         } catch (InterruptedException | ExecutionException e) {
-            e.printStackTrace();
+            throw new RuntimeException(e);
         }
     }
 

@@ -126,6 +126,7 @@ public class View extends JFrame {
             int[] unsortedArray = ArrayUtils.createRandomArray(arrayLength);
             //unsortedTextPane.setText(ArrayUtils.getArrayString(unsortedArray));
             String sortedArray = "";
+            int[] finalUnsortedArray = unsortedArray;
             switch (sortingAlgorithm) {
                 case NONE -> {
                     sortedTextPane.setText("Seleccione un algoritmo!");
@@ -151,11 +152,11 @@ public class View extends JFrame {
                     elapsedTimeForkJoin.setText("Fork: " + formatter.format(elapsedTime / 1000) + " us");
                 }
                 case EXECUTE -> {
-                    ExecutorService executor = Executors.newFixedThreadPool(7);
+                    ExecutorService executor = Executors.newWorkStealingPool();
                     long start = System.nanoTime();
-                    Future<?> future = executor.submit(() -> ExecutorMergeSort.mergeSort(unsortedArray, executor));
+                    Future<int[]> future = executor.submit(() -> ExecutorMergeSort.mergeSort(finalUnsortedArray, executor, 12));
                     try {
-                        future.get();
+                        unsortedArray = future.get();
                     } catch (InterruptedException | ExecutionException ex) {
                         throw new RuntimeException(ex);
                     }
@@ -167,6 +168,11 @@ public class View extends JFrame {
                 }
             }
             //sortedTextPane.setText(sortedArray);
+            for(int i = 0; i < unsortedArray.length - 1; i++) {
+                if(unsortedArray[i] > unsortedArray[i + 1]) {
+                    System.out.println("INCORRECTO");
+                }
+            }
         });
     }
 
