@@ -124,7 +124,7 @@ public class View extends JFrame {
             }
             int arrayLength = Integer.parseInt(arraySizeTextField.getText());
             int[] unsortedArray = ArrayUtils.createRandomArray(arrayLength);
-            //unsortedTextPane.setText(ArrayUtils.getArrayString(unsortedArray));
+            unsortedTextPane.setText(ArrayUtils.getArrayString(unsortedArray));
             String sortedArray = "";
             int[] finalUnsortedArray = unsortedArray;
             switch (sortingAlgorithm) {
@@ -148,6 +148,7 @@ public class View extends JFrame {
                     long finish = System.nanoTime();
                     elapsedTime = finish - start;
                     forkJoinPool.close();
+                    forkJoinPool.shutdown();
                     sortedArray = ArrayUtils.getArrayString(unsortedArray);
                     elapsedTimeForkJoin.setText("Fork: " + formatter.format(elapsedTime / 1000) + " us");
                 }
@@ -162,17 +163,13 @@ public class View extends JFrame {
                     }
                     long finish = System.nanoTime();
                     elapsedTime = finish - start;
+                    executor.close();
                     executor.shutdown();
                     sortedArray = ArrayUtils.getArrayString(unsortedArray);
                     elapsedTimeExecute.setText("Execute: " + formatter.format(elapsedTime / 1000) + " us");
                 }
             }
-            //sortedTextPane.setText(sortedArray);
-            for(int i = 0; i < unsortedArray.length - 1; i++) {
-                if(unsortedArray[i] > unsortedArray[i + 1]) {
-                    System.out.println("INCORRECTO");
-                }
-            }
+            sortedTextPane.setText(sortedArray);
         });
     }
 
